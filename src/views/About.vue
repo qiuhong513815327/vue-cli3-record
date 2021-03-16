@@ -2,7 +2,6 @@
   <div class="search-wrapper"></div>
 </template>
 <script>
-// var count = 0;
 export default {
   name: "Search",
   mounted() {},
