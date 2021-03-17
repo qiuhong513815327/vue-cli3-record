@@ -15,14 +15,6 @@ export default {
     };
   },
   computed: {},
-  watch: {
-    "$store.state": {
-      deep: true,
-      handler() {
-        this.getMetaEl();
-      }
-    }
-  },
   mounted() {},
   methods: {}
 };
