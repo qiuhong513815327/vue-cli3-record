@@ -6,6 +6,8 @@
         type="text"
         @input="change"
         @focus="focusblur"
+        @keydown.down.prevent="keyWordEdit(1)"
+        @keydown.up.prevent="keyWordEdit(-1)"
         ref="input"
         class="searcher-input"
         placeholder="请输入"
@@ -19,19 +21,23 @@
       <!-- <div class="search-result"> -->
       <div class="res-list" ref="resultContent">
         <div
-          class="res-item"
           v-for="(item, index) in resList"
           :key="index"
+          :class="{
+            'res-item': true,
+            'item-active': support.navigat.index === index
+          }"
           @click="selectItem(item)"
           @mousedown="support.blurClick = true"
         >
+          <!-- mousedown事件处理选中前防止搜索结果被清空关闭，由于全局注册了点击事件关闭结果，这里mousedown可以提前click处理做一些标志 -->
           {{ item.name }}
         </div>
         <div v-show="resList.length === 0" class="tip">
           <span v-if="support.searchState[support.indexSearch] !== 'dosearch'"
             >暂无相关内容</span
           >
-          <span v-else>{{ "正在搜索 " + support.searchContr.tempStr }}</span>
+          <span v-else>{{ "正在搜索：" + support.searchContr.tempStr }}</span>
         </div>
       </div>
     </div>
@@ -44,12 +50,7 @@ export default {
     return {
       str: "",
       lastStr: "",
-      resList: [
-        { name: "第一条数据" },
-        { name: "第二条数据" },
-        { name: "第三条数据" },
-        { name: "第四条数据" }
-      ],
+      resList: [],
       support: {
         searchContr: {
           delay: 300,
@@ -61,7 +62,10 @@ export default {
         indexSearch: null,
         searchState: {},
         inputFocus: false,
-        blurClick: false
+        blurClick: false,
+        navigat: {
+          index: 0
+        }
       },
       targetDom: ["searcher-input"],
       searchFocus: false
@@ -126,8 +130,12 @@ export default {
             { name: "第一条数据" },
             { name: "第二条数据" },
             { name: "第三条数据" },
-            { name: "第四条数据" }
+            { name: "第四条数据" },
+            { name: "第五条数据" },
+            { name: "第六条数据" }
           ];
+          this.support.navigat.index = -1;
+          this.keyWordEdit(1);
         }, 1000);
       } catch (error) {
         this.support.searchState[index] = "error";
@@ -153,15 +161,25 @@ export default {
         this.support.blurClick = false;
         return;
       }
-      console.log("关闭搜索结果");
-
       this.support.inputFocus = false;
       this.clearSearch();
     },
+    // 选中搜索结果
     selectItem(item) {
       this.support.searchContr.tempStr = this.lastStr = this.str = item.name;
       this.clearSearch();
       this.support.inputFocus = false;
+    },
+    // 按键操作选择结果
+    keyWordEdit(num) {
+      let step = 0;
+      if (this.resList.length === 0) return;
+      let temp = this.support.navigat.index;
+      //temp < this.resList.length - 1，判断选中位置的索引是否达到最大位置，累加值为0，键入向下或者向上无效
+      if (num > 0 && temp < this.resList.length - 1) step = 1;
+      if (num < 0 && temp > 0) step = -1;
+      // 存入当前的键入位置的索引
+      if (step !== 0) this.support.navigat.index += step;
     }
   }
 };
@@ -219,7 +237,11 @@ export default {
       .res-item {
         line-height: 40px;
         cursor: pointer;
+        white-space: nowrap;
         &:hover {
+          background-color: #e9cccc;
+        }
+        &.item-active {
           background-color: #e9cccc;
         }
       }
