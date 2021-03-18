@@ -8,6 +8,7 @@
         @focus="focusblur"
         @keydown.down.prevent="keyWordEdit(1)"
         @keydown.up.prevent="keyWordEdit(-1)"
+        @keydown.enter.prevent="enterEdit"
         ref="input"
         class="searcher-input"
         placeholder="请输入"
@@ -67,8 +68,7 @@ export default {
           index: 0
         }
       },
-      targetDom: ["searcher-input"],
-      searchFocus: false
+      targetDom: ["searcher-input"]
     };
   },
   mounted() {
@@ -143,7 +143,6 @@ export default {
     },
     focusblur() {
       this.doSearch(this.support.searchContr.tempStr);
-      this.searchFocus = true;
       this.support.inputFocus = true;
     },
     clearSearch() {
@@ -156,7 +155,6 @@ export default {
     closeSearchResult(e) {
       // 如果是点击在input框聚焦就不要关闭搜索结果
       if (this.targetDom.includes(e.target.className)) return;
-      this.searchFocus = false;
       if (this.support.blurClick === true) {
         this.support.blurClick = false;
         return;
@@ -170,7 +168,7 @@ export default {
       this.clearSearch();
       this.support.inputFocus = false;
     },
-    // 按键操作选择结果
+    // 上下方向按键操作选择结果
     keyWordEdit(num) {
       let step = 0;
       if (this.resList.length === 0) return;
@@ -180,6 +178,19 @@ export default {
       if (num < 0 && temp > 0) step = -1;
       // 存入当前的键入位置的索引
       if (step !== 0) this.support.navigat.index += step;
+    },
+    // enter按键操作选择结果
+    enterEdit() {
+      if (this.resList.length === 0) return;
+      let index = this.support.navigat.index;
+      if (index > -1) this.lastStr = this.str = this.resList[index]["name"];
+      // 关闭搜索结果区域
+      this.support.inputFocus = false;
+      this.clearSearch();
+      this.resList = [];
+      // 保持搜索结果区域为聚焦状态，键入重新搜索
+      this.support.inputFocus = true;
+      this.support.searchContr.tempStr = "";
     }
   }
 };
