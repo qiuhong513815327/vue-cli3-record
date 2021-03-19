@@ -76,9 +76,8 @@ export default {
   #tutorial {
     position: absolute;
     top: 100px;
-    left: 30%;
+    left: 350px;
     z-index: 10;
-    border: 1px solid #ccc;
   }
   @keyframes rotate {
     100% {
@@ -87,8 +86,8 @@ export default {
   }
   .rainbow {
     position: absolute;
-    top: 100px;
-    left: 350px;
+    top: 94px;
+    left: 344px;
     z-index: 1;
     width: 448px;
     height: 448px;
