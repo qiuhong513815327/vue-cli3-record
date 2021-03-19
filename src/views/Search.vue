@@ -238,22 +238,30 @@ export default {
     top: 48px;
     left: 0;
     z-index: 10;
+
+    // box-shadow: 0 2px 12px 0 rgb(0 0 0 / 10%);
+    // border-radius: 4px;
+    // border: 1px solid #e4e7ed;
+    // box-sizing: border-box;
+    // background-color: #fff;
     .res-list {
       padding: 8px 0;
-      background: rgb(240, 234, 234);
-      box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.16);
       overflow-y: auto;
+      box-shadow: 0 2px 12px 0 rgb(0 0 0 / 10%);
+      border-radius: 4px;
+      border: 1px solid #e4e7ed;
       box-sizing: border-box;
+      background-color: #fff;
       max-height: 48px 0;
       .res-item {
         line-height: 40px;
         cursor: pointer;
         white-space: nowrap;
         &:hover {
-          background-color: #e9cccc;
+          background-color: #f5f7fa;
         }
         &.item-active {
-          background-color: #e9cccc;
+          background-color: #f5f7fa;
         }
       }
     }
@@ -261,14 +269,26 @@ export default {
       padding: 8px 16px;
       color: #9b9b9b;
     }
+    &::before {
+      position: absolute;
+      box-sizing: border-box;
+      top: -18px;
+      left: 46px;
+      z-index: 55;
+      content: "";
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid #fff;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+    }
     &::after {
       position: absolute;
       box-sizing: border-box;
-      top: -16px;
+      top: -20px;
       left: 46px;
       content: "";
-      border-top: 8px solid transparent;
-      border-bottom: 8px solid rgb(240, 234, 234);
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid #ebeef5;
       border-left: 10px solid transparent;
       border-right: 10px solid transparent;
     }
