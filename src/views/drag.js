@@ -9,6 +9,10 @@ export default class Drag {
     this.color = color;
     this.canvas = canvas;
     this.img = img;
+    this.step = 1;
+    this.oldStep = 1;
+    this.rectX = 0;
+    this.rectY = 0;
   }
   init() {
     this.drawing();
@@ -39,26 +43,31 @@ export default class Drag {
     let hasRectY =
       canvasClient.y > this.positionY &&
       canvasClient.y < this.positionY + this.height;
+
     return hasRectX && hasRectY;
   }
   mousedown(e) {
     let flag = this.isRect(e);
     if (flag) {
+      // 暂存鼠标按下时在画布内的坐标
       let downClient = this.windowClient(e.clientX, e.clientY);
-      let _x = downClient.x - this.positionX;
-      let _y = downClient.y - this.positionY;
+      // 暂存鼠标最后的位置
+      let lastX = downClient.x;
+      let lastY = downClient.y;
       this.canvas.onmousemove = (e) => {
-        let moveClient = this.windowClient(e.clientX, e.clientY);
-        this.positionX = moveClient.x - _x;
-        this.positionY = moveClient.y - _y;
-        this.positionX < 0 && (this.positionX = 0);
-        this.positionX > this.canvas.width - this.width &&
-          (this.positionX = this.canvas.width - this.width);
-        this.positionY < 0 && (this.positionY = 0);
-        this.positionY > this.canvas.height - this.height &&
-          (this.positionY = this.canvas.height - this.height);
-        // this.drawing();
+        let canvasClient = this.windowClient(e.clientX, e.clientY);
+        // 每次拖拽将矩形内坐标作为偏移量保持鼠标点在图片上的位置
+        this.positionX += canvasClient.x - lastX;
+        this.positionY += canvasClient.y - lastY;
+        // this.positionX < 0 && (this.positionX = 0);
+        // this.positionX > this.canvas.width - this.width &&
+        //   (this.positionX = this.canvas.width - this.width);
+        // this.positionY < 0 && (this.positionY = 0);
+        // this.positionY > this.canvas.height - this.height &&
+        //   (this.positionY = this.canvas.height - this.height);
         requestAnimationFrame(this.drawing.bind(this));
+        lastX = canvasClient.x;
+        lastY = canvasClient.y;
         this.canvas.onmouseleave = (e) => {
           this.mouseup(e);
         };
@@ -79,6 +88,41 @@ export default class Drag {
       this.mousemove(e);
     };
   }
+  handle(e) {
+    let key = this.step / this.oldStep;
+    this.width *= key;
+    this.height *= key;
+    let canvasClient = this.windowClient(e.clientX, e.clientY);
+    // 矩形内的坐标
+    this.rectX = canvasClient.x - this.positionX;
+    this.rectY = canvasClient.y - this.positionY;
+    this.positionX -= this.rectX * key - this.rectX;
+    this.positionY -= this.rectY * key - this.rectY;
+    this.drawing();
+  }
+  // 鼠标滚轮事件执行函数
+  wheel(event) {
+    if (!this.isRect(event)) return;
+    this.oldStep = this.step;
+    let delta = 0;
+    if (!event) event = window.event;
+    if (event.wheelDelta) {
+      //IE、chrome浏览器使用的是wheelDelta，并且值为“正负150”
+      delta = event.wheelDelta / 300;
+      // if (delta < 0) {
+      //   delta = Math.abs(delta);
+      // }
+      this.step += delta;
+    } else if (event.detail) {
+      //FF浏览器使用的是detail,其值为“正负3”
+      //因为IE、chrome等向下滚动是负值，FF是正值，为了处理一致性，在此取反处理
+      delta = -event.detail / 6;
+    }
+    this.step = Math.max(0.5, this.step);
+    this.step > 6 && (this.step = 6);
+    this.handle(event);
+  }
+
   // 给画布注册事件
   initEvent() {
     this.canvas.onmousemove = (e) => {
@@ -90,5 +134,12 @@ export default class Drag {
     this.canvas.onmouseup = (e) => {
       this.mouseup(e);
     };
+    // 全局注册鼠标滚轮事件
+    if (window.addEventListener) {
+      /** DOMMouseScroll is for mozilla. */
+      window.addEventListener("DOMMouseScroll", this.wheel.bind(this), false);
+    }
+    /** IE/Opera/Chrome */
+    window.onmousewheel = document.onmousewheel = this.wheel.bind(this);
   }
 }
