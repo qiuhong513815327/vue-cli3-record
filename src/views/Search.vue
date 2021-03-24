@@ -45,6 +45,7 @@
   </div>
 </template>
 <script>
+import axios from "axios";
 export default {
   name: "Search",
   data() {
@@ -119,24 +120,18 @@ export default {
         this.resList = [];
       }
     },
-    getSearchResult(index, str) {
+    async getSearchResult(index, str) {
+      console.log(str);
       this.resList = [];
+      let res = await axios.get("/getSearch");
       try {
-        setTimeout(() => {
-          console.log("str::::::", str, index); // 入参搜索词
+        if (res.data.code === "200") {
           if (this.support.searchState[index] === "cancel") return;
           this.support.searchState[index] = "done";
-          this.resList = [
-            { name: "第一条数据" },
-            { name: "第二条数据" },
-            { name: "第三条数据" },
-            { name: "第四条数据" },
-            { name: "第五条数据" },
-            { name: "第六条数据" }
-          ];
+          this.resList = res.data.data;
           this.support.navigat.index = -1;
           this.keyWordEdit(1);
-        }, 1000);
+        }
       } catch (error) {
         this.support.searchState[index] = "error";
       }

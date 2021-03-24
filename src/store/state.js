@@ -1,5 +1,3 @@
 export default {
-  title: "",
-  keywords: "",
-  description: ""
+  value: "123123"
 };
