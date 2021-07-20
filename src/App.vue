@@ -8,6 +8,9 @@
       <router-link to="/imageDrag" exact-active-class="my-active"
         >ImageDrag</router-link
       >
+      <router-link to="/nodeConnectSql" exact-active-class="my-active"
+        >nodeConnectSql</router-link
+      >
     </header>
     <div>
       <router-view />
